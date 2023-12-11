@@ -5,6 +5,7 @@ using System.Text;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,14 +53,14 @@ namespace API.Controllers
             // Zwrócenie utworzonego użytkownika jako wyniku akcji
             return new UserDto 
             {
-                UserName = user.UserName
+                Username = user.UserName,
                 Token = _tokenService.CreateToken(user)
-            }
+            };
         }
 
         //LOGOWANIE UŻYTKOWNIKA
         [HttpPost("login")]
-        public async Task<ActionResult<AppUser>> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
             // Pobranie użytkownika z bazy danych na podstawie nazwy użytkownika
             var user = await _context.Users.SingleOrDefaultAsync(x => 
@@ -80,7 +81,11 @@ namespace API.Controllers
                 if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Złe hasło");
             }
             // Zwrócenie użytkownika jako wyniku udanej autentykacji
-            return user;
+            return new UserDto 
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
 
         // Prywatna metoda sprawdzająca, czy użytkownik o podanej nazwie już istnieje
