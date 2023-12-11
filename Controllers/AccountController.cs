@@ -15,17 +15,19 @@ namespace API.Controllers
         
         // Prywatne pole przechowujące kontekst bazy danych
         private readonly DataContext _context;
+        private readonly ITokenService _tokenService;
 
          // Konstruktor kontrolera, przyjmujący jako parametr kontekst bazy danych
-        public AccountController(DataContext context)
+        public AccountController(DataContext context, ITokenService tokenService)
         {
+            _tokenService = tokenService;
             _context = context;
             
         }
 
         //REJESTRACJA UŻYTKOWNIKA
         [HttpPost("register")] // POST: /api/account/register
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             // Sprawdzenie, czy użytkownik o podanej nazwie już istnieje
             if (await UserExists(registerDto.Username)) return BadRequest("Nazwa jest zajęta");
@@ -48,7 +50,11 @@ namespace API.Controllers
             // Zapisanie zmian w bazie danych
             await _context.SaveChangesAsync();
             // Zwrócenie utworzonego użytkownika jako wyniku akcji
-            return user;
+            return new UserDto 
+            {
+                UserName = user.UserName
+                Token = _tokenService.CreateToken(user)
+            }
         }
 
         //LOGOWANIE UŻYTKOWNIKA
