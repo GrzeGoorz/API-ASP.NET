@@ -1,4 +1,6 @@
 using API.Data;
+using API.Interfaces;
+using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<DataContext>(opt =>
 
 
 builder.Services.AddCors();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Tworzy instancję aplikacji ASP.NET Core na podstawie konfiguracji zdefiniowanej w obiekcie builder.
 var app = builder.Build();
